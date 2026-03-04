@@ -1,4 +1,4 @@
-class AttendeeRepository:
+class FileAttendeeRepository:
     def add(self, event_id, attendee):
         raise NotImplementedError
 
@@ -9,7 +9,7 @@ class AttendeeRepository:
         raise NotImplementedError
 
 
-class InMemoryAttendeeRepository(AttendeeRepository):
+class InMemoryAttendeeRepository(FileAttendeeRepository):
     def __init__(self):
         self.storage = {}
 
