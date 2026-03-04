@@ -1,27 +1,43 @@
+import json
+import os
+
+
 class FileAttendeeRepository:
-    def add(self, event_id, attendee):
-        raise NotImplementedError
+    def __init__(self, file_path):
+        self.file_path = file_path
 
-    def get_by_event(self, event_id):
-        raise NotImplementedError
+        
+        if not os.path.exists(self.file_path):
+            with open(self.file_path, "w") as f:
+                json.dump([], f)
 
-    def update(self, event_id, attendee):
-        raise NotImplementedError
+    def _load(self):
+        with open(self.file_path, "r") as f:
+            return json.load(f)
 
+    def _save(self, data):
+        with open(self.file_path, "w") as f:
+            json.dump(data, f)
 
-class InMemoryAttendeeRepository(FileAttendeeRepository):
-    def __init__(self):
-        self.storage = {}
+    def add(self, attendee):
+        data = self._load()
+        data.append(attendee)
+        self._save(data)
 
-    def add(self, event_id, attendee):
-        self.storage.setdefault(event_id, []).append(attendee)
+    def get_all(self):
+        return self._load()
 
-    def get_by_event(self, event_id):
-        return self.storage.get(event_id, [])
+    def find_by_email(self, email):
+        data = self._load()
+        for attendee in data:
+            if attendee.get("email") == email:
+                return attendee
+        return None
 
-    def update(self, event_id, updated_attendee):
-        attendees = self.storage.get(event_id, [])
-        for i, a in enumerate(attendees):
-            if a.email == updated_attendee.email:
-                attendees[i] = updated_attendee
+    def update(self, email, updated_attendee):
+        data = self._load()
+        for i, attendee in enumerate(data):
+            if attendee.get("email") == email:
+                data[i] = updated_attendee
+                self._save(data)
                 return
